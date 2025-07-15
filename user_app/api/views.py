@@ -4,14 +4,20 @@ from .serializer import RegisterSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import authentication_classes
 
 
 
 @api_view(["POST"])
+@authentication_classes([TokenAuthentication])
 def logout_view(request):
     if request.method == "POST":
-        request.user.auth_token.delete()
-        return Response(status = status.HTTP_200_OK)
+        if request.user.is_authenticated:
+            request.user.auth_token.delete()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 @api_view(["POST"])
